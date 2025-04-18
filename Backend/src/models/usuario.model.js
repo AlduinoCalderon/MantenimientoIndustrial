@@ -1,7 +1,12 @@
 const { pool } = require('../config/database');
 const bcrypt = require('bcryptjs');
+const BaseModel = require('./base.model');
 
-class User {
+class Usuario extends BaseModel {
+  static get tableName() {
+    return 'usuarios';
+  }
+
   static async create({ nombre, email, contraseña, rol }) {
     try {
       const hashedPassword = await bcrypt.hash(contraseña, 10);
@@ -39,14 +44,46 @@ class User {
     }
   }
 
-  static async update(id, { nombre, email, rol }) {
+  static async update(id, updates) {
     try {
-      const [result] = await pool.execute(
-        'UPDATE usuarios SET nombre = ?, email = ?, rol = ? WHERE id = ? AND deleted_at IS NULL',
-        [nombre, email, rol, id]
-      );
+      const validFields = ['nombre', 'email', 'contraseña', 'rol'];
+      const fieldsToUpdate = {};
+      const values = [];
+      let passwordIndex = -1;
+      
+      // Filtrar solo los campos válidos que no son undefined
+      for (const field of validFields) {
+        if (updates[field] !== undefined) {
+          fieldsToUpdate[field] = updates[field];
+          if (field === 'contraseña') {
+            passwordIndex = values.length;
+          }
+          values.push(updates[field]);
+        }
+      }
+      
+      if (Object.keys(fieldsToUpdate).length === 0) {
+        return false;
+      }
+      
+      // Si hay una contraseña, hashearla
+      if (passwordIndex !== -1 && values[passwordIndex]) {
+        values[passwordIndex] = await bcrypt.hash(values[passwordIndex], 10);
+      }
+      
+      // Construir la consulta SQL dinámicamente
+      const setClause = Object.keys(fieldsToUpdate)
+        .map(field => `${field} = ?`)
+        .join(', ');
+      
+      values.push(id);
+      
+      const query = `UPDATE usuarios SET ${setClause} WHERE id = ? AND deleted_at IS NULL`;
+      
+      const [result] = await pool.execute(query, values);
       return result.affectedRows > 0;
     } catch (error) {
+      console.error('Error in update user:', error);
       throw error;
     }
   }
@@ -75,4 +112,4 @@ class User {
   }
 }
 
-module.exports = User; 
+module.exports = Usuario; 

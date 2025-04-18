@@ -1,14 +1,14 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user.model');
+const Usuario = require('../models/usuario.model');
 
-const authController = {
-  async register(req, res) {
+const autenticacionController = {
+  async registrar(req, res) {
     try {
       const { nombre, email, contraseña, rol } = req.body;
 
       // Check if user already exists
-      const existingUser = await User.findByEmail(email);
+      const existingUser = await Usuario.findByEmail(email);
       if (existingUser) {
         return res.status(400).json({
           status: 'error',
@@ -17,7 +17,7 @@ const authController = {
       }
 
       // Create new user
-      const userId = await User.create({
+      const userId = await Usuario.create({
         nombre,
         email,
         contraseña,
@@ -52,12 +52,12 @@ const authController = {
     }
   },
 
-  async login(req, res) {
+  async iniciarSesion(req, res) {
     try {
       const { email, contraseña } = req.body;
 
       // Find user
-      const user = await User.findByEmail(email);
+      const user = await Usuario.findByEmail(email);
       if (!user) {
         return res.status(401).json({
           status: 'error',
@@ -103,4 +103,4 @@ const authController = {
   }
 };
 
-module.exports = authController; 
+module.exports = autenticacionController; 
