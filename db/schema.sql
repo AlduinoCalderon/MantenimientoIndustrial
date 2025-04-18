@@ -1,16 +1,17 @@
 CREATE TABLE usuarios (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  nombre TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  contraseña TEXT NOT NULL,
+  nombre VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  contraseña VARCHAR(255) NOT NULL,
   rol ENUM('Trabajador', 'Administrador') NOT NULL,
   deleted_at TIMESTAMP NULL
 );
 
+
 CREATE TABLE clientes (
   id INT PRIMARY KEY AUTO_INCREMENT,
   nombre TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
   contraseña TEXT NOT NULL,
   contacto TEXT,
   empresa TEXT,
@@ -29,14 +30,14 @@ CREATE TABLE equipos (
 CREATE TABLE vehiculos (
   id INT PRIMARY KEY AUTO_INCREMENT,
   modelo TEXT NOT NULL,
-  placas TEXT UNIQUE NOT NULL,
+  placas VARCHAR(255) UNIQUE NOT NULL,
   deleted_at TIMESTAMP NULL
 );
 
 CREATE TABLE reportes_mantenimiento (
   id INT PRIMARY KEY AUTO_INCREMENT,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  descripcion TEXT NOT NULL,
+  descripcion TEXT,
   tipo ENUM('Preventivo', 'Correctivo') NOT NULL,
   evidencias TEXT,
   equipo_id INT,
@@ -53,7 +54,7 @@ CREATE TABLE recargas_combustible (
   cantidad DECIMAL(10, 2) NOT NULL,
   fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   gasolinera TEXT,
-  foto_ticket TEXT NOT NULL,
+  foto_ticket VARCHAR(255) UNIQUE NOT NULL,
   usuario_id INT,
   FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id),
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
